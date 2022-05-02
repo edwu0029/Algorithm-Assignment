@@ -44,17 +44,18 @@ public class City {
         connections.get(end).add(start);
     }
     public void fireStationSolve (){
+        connections.forEach((key, value) -> System.out.println(key + ":" + value));
         while (!communitiesFulfilled()){
-            System.out.println("Not all communities are fulfilled");
+            //System.out.println("Not all communities are fulfilled");
             if (leafCommunitiesExist()){
-                System.out.println("Leaf communities exists");
+                //System.out.println("Leaf communities exists");
                 for (Community i: getCommunitiesWithNeighbours(1)){
 
                     for (Community o: getNeighbours(i)){
                         addFireStation(o);
                     }
 
-                    System.out.println("set fire station");
+                    //System.out.println("set fire station");
                 }
             }
             else{
@@ -65,7 +66,9 @@ public class City {
     }
 
     public Boolean communitiesFulfilled(){
-        return fulfilledCommunities == communities.size();
+        System.out.println("Fulfilled: "+fulfilledCommunities);
+        System.out.println("Total: "+totalCommunities);
+        return fulfilledCommunities == totalCommunities;
     }
 
     public Boolean leafCommunitiesExist(){
@@ -111,11 +114,14 @@ public class City {
         }
     }
 
+
     public ArrayList<Community> getNeighbours(Community community){
         ArrayList<Community> neighbours = new ArrayList<Community>();
         if (connections.containsKey(community)){
             for (Community i: connections.get(community)){
-                neighbours.add(i);
+                if (!i.isFulfilled()){
+                    neighbours.add(i);
+                }
             }
         }
         return neighbours;
