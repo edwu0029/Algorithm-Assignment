@@ -15,7 +15,7 @@ public class City {
 
     City(){
         this.totalCommunities = 0;
-        this.fulfilledCommunities = 1;
+        this.fulfilledCommunities = 0;
         this.communities = new ArrayList<Community>();
         this.connections = new HashMap<Community, ArrayList<Community>>();
     }
@@ -118,7 +118,6 @@ public class City {
     public ArrayList<Community> getNeighbours(Community community){
         ArrayList<Community> neighbours = new ArrayList<Community>();
         if (connections.containsKey(community)){
-            System.out.println(getNeighboursAmount(community));
             for (Community i: connections.get(community)){
                 if (!i.isFulfilled()){
                     neighbours.add(i);
