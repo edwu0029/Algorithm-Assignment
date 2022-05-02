@@ -12,6 +12,7 @@ public class Community{
     private final int cityID;
     private boolean selected;
     private boolean fireStation;
+    private boolean connectedToFireStation;
 
     Community(){
         this.cityID = nextCommunityID;
@@ -34,5 +35,14 @@ public class Community{
     }
     public void setFireStation(boolean newValue){
         fireStation = newValue;
+    }
+    public boolean getConnectedToFireStation() {
+        return connectedToFireStation;
+    }
+    public void setConnectedFireStation(boolean newValue){
+        connectedToFireStation = newValue;
+    }
+    public boolean isFulfilled() {
+        return fireStation || connectedToFireStation;
     }
 }

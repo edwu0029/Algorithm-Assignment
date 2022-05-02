@@ -62,7 +62,7 @@ public class Visualizer extends JFrame{
         public void paintComponent(Graphics g){
             super.paintComponent(g);
             //Draw edges
-            HashMap<Community, ArrayList<Community>>adjacencyList = city.getAdjacencyList();
+            HashMap<Community, ArrayList<Community>>adjacencyList = city.getConnections();
             g.setColor(Color.BLACK);
             for(Community i:adjacencyList.keySet()){
                 ArrayList<Community>nextNodes = adjacencyList.get(i);
@@ -136,7 +136,7 @@ public class Visualizer extends JFrame{
                         selected.setSelected(true);
                     }else{ //Otherwise make a edge with selected and clicked cities
                         selected.setSelected(false);
-                        city.addEdge(selected, cityClicked);
+                        city.addConnection(selected, cityClicked);
                         selected = null;
                     }
                 }
@@ -151,6 +151,8 @@ public class Visualizer extends JFrame{
         public void keyPressed(KeyEvent e){
             if(e.getKeyCode()==KeyEvent.VK_ENTER){ //If enter is typed, lock input
                 lockedInput = true;
+                //city.fireStationSolve();
+                //Calls city to solve where to put the fire stations
             }
         }
         public void keyTyped(KeyEvent e){}
