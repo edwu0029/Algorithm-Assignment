@@ -31,10 +31,17 @@ public class City {
     }
     public void addConnection(Community start, Community end){
         //NEED to add checker for if start and end Citys are in the graph
+        //Add bidirectional connection from start to end
+        //start to end
         if(!connections.containsKey(start)){
             connections.put(start, new ArrayList<Community>());
         }
         connections.get(start).add(end);
+        //end to start
+        if(!connections.containsKey(end)){
+            connections.put(end, new ArrayList<Community>());
+        }
+        connections.get(end).add(start);
     }
     public void fireStationSolve (){
         connections.forEach((key, value) -> System.out.println(key + ":" + value));
