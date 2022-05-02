@@ -1,6 +1,6 @@
 public class Test {
     public static void main(String args[]){
-        Graph graph = new Graph();
-        Visualizer v = new Visualizer(graph);
+        City city = new City();
+        Visualizer v = new Visualizer(city);
     }
 }

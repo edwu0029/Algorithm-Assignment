@@ -6,13 +6,13 @@ import java.util.ArrayList;
  * @author Edward Wu and Yi Chun Jin
  * @version 1.0, April 25, 2022
  */
-public class Graph{
+public class City {
     /*----- Instance variables -----*/
     private int totalCommunities;
     private ArrayList<Community>communities;
     private HashMap<Community, ArrayList<Community>>adjacencyList;
-    
-    Graph(){
+
+    City(){
         this.totalCommunities = 0;
         this.communities = new ArrayList<Community>();
         this.adjacencyList = new HashMap<Community, ArrayList<Community>>();

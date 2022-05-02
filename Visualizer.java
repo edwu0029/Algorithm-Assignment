@@ -23,13 +23,13 @@ public class Visualizer extends JFrame{
 
     /*----- Instance variables -----*/
     private GraphPanel panel;
-    private Graph graph;
+    private City city;
     private HashMap<Community, Coordinate>communityLocations;
     private boolean lockedInput; //Lock user from inputting    
 
-    Visualizer(Graph graph){
+    Visualizer(City city){
         this.panel = new GraphPanel();
-        this.graph = graph;
+        this.city = city;
         this.communityLocations = new HashMap<Community, Coordinate>();
         this.lockedInput = false;
 
@@ -62,7 +62,7 @@ public class Visualizer extends JFrame{
         public void paintComponent(Graphics g){
             super.paintComponent(g);
             //Draw edges
-            HashMap<Community, ArrayList<Community>>adjacencyList = graph.getAdjacencyList();
+            HashMap<Community, ArrayList<Community>>adjacencyList = city.getAdjacencyList();
             g.setColor(Color.BLACK);
             for(Community i:adjacencyList.keySet()){
                 ArrayList<Community>nextNodes = adjacencyList.get(i);
@@ -74,7 +74,7 @@ public class Visualizer extends JFrame{
                 }
             }
             //Draw communities
-            ArrayList<Community>nodes = graph.getCommunities();
+            ArrayList<Community>nodes = city.getCommunities();
             for(Community i:nodes){
                 Coordinate centre = communityLocations.get(i);
                 //Draw border
@@ -128,7 +128,7 @@ public class Visualizer extends JFrame{
                 }
                 if(cityClicked==null){ //If no community is clicked, add a community
                     Community newCommunity = new Community();
-                    graph.addCommunity(newCommunity);
+                    city.addCommunity(newCommunity);
                     communityLocations.put(newCommunity, new Coordinate(e.getX(), e.getY()));
                 }else{
                     if(selected==null){ //If there is no selected, make this clickedCity selected
@@ -136,7 +136,7 @@ public class Visualizer extends JFrame{
                         selected.setSelected(true);
                     }else{ //Otherwise make a edge with selected and clicked cities
                         selected.setSelected(false);
-                        graph.addEdge(selected, cityClicked);
+                        city.addEdge(selected, cityClicked);
                         selected = null;
                     }
                 }
