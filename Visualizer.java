@@ -151,7 +151,7 @@ public class Visualizer extends JFrame{
         public void keyPressed(KeyEvent e){
             if(e.getKeyCode()==KeyEvent.VK_ENTER){ //If enter is typed, lock input
                 lockedInput = true;
-                //city.fireStationSolve();
+                city.fireStationSolve();
                 //Calls city to solve where to put the fire stations
             }
         }

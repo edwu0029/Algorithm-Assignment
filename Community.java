@@ -39,7 +39,7 @@ public class Community{
     public boolean getConnectedToFireStation() {
         return connectedToFireStation;
     }
-    public void setConnectedFireStation(boolean newValue){
+    public void setConnectedToFireStation(boolean newValue){
         connectedToFireStation = newValue;
     }
     public boolean isFulfilled() {

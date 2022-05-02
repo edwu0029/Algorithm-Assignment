@@ -38,9 +38,16 @@ public class City {
     }
     public void fireStationSolve (){
         while (!communitiesFulfilled()){
+            System.out.println("Not all communities are fulfilled");
             if (leafCommunitiesExist()){
-                for (Community i: getCommunities(1)){
-                    i.setFireStation(true);
+                System.out.println("Leaf communities exists");
+                for (Community i: getCommunitiesWithNeighbours(1)){
+
+                    for (Community o: getNeighbours(i)){
+                        addFireStation(o);
+                    }
+
+                    System.out.println("set fire station");
                 }
             }
             else{
@@ -56,16 +63,15 @@ public class City {
 
     public Boolean leafCommunitiesExist(){
         for (Community i: connections.keySet()){
-            if (getUnfulfilledNeighbours(i) == 1){
+            if (getNeighboursAmount(i) == 1){
                 return true;
             }
         }
         return false;
     }
 
-    public ArrayList<Community> getCommunities(int unfulfilledNeighbours){
+    public ArrayList<Community> getCommunitiesWithNeighbours(int unfulfilledNeighbours){
         ArrayList<Community> neighboursUnfulfilled = new ArrayList<Community>();
-
         if (unfulfilledNeighbours == 0){
             for (Community i: this.communities){
                 if (!connections.containsKey(i)){
@@ -75,17 +81,15 @@ public class City {
         }
         else{
             for (Community i: this.communities){
-                if (getUnfulfilledNeighbours(i) == unfulfilledNeighbours){
+                if (getNeighboursAmount(i) == unfulfilledNeighbours){
                     neighboursUnfulfilled.add(i);
                 }
             }
         }
-
         return neighboursUnfulfilled;
-
     }
 
-    public int getUnfulfilledNeighbours(Community community){
+    public int getNeighboursAmount(Community community){
         if (!connections.containsKey(community)){
             return 0;
         }
@@ -98,6 +102,24 @@ public class City {
             }
             return unfulfilled;
         }
+    }
 
+    public ArrayList<Community> getNeighbours(Community community){
+        ArrayList<Community> neighbours = new ArrayList<Community>();
+        if (connections.containsKey(community)){
+            for (Community i: connections.get(community)){
+                neighbours.add(i);
+            }
+        }
+        return neighbours;
+    }
+
+    public void addFireStation(Community community){
+        community.setFireStation(true);
+        fulfilledCommunities++;
+        for (Community i: getNeighbours(community)){
+            i.setConnectedToFireStation(true);
+            fulfilledCommunities++;
+        }
     }
 }
