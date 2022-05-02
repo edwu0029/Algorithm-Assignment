@@ -84,7 +84,10 @@ public class Visualizer extends JFrame{
                     g.setColor(Color.ORANGE);
                 }else if(i.getSelected()){ //If selected, draw blue 
                     g.setColor(Color.BLUE);
-                }else{ //Otherwise, draw white
+                }else if(i.getConnectedToFireStation()){ //If connected to fire station, draw gray
+                    g.setColor(Color.GRAY);
+                }
+                else{ //Otherwise, draw white
                     g.setColor(Color.WHITE);
                 }
                 g.fillOval(centre.getX()-Const.RADIUS/2, centre.getY()-Const.RADIUS/2, 2*Const.RADIUS, 2*Const.RADIUS);
