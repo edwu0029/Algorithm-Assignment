@@ -1,5 +1,7 @@
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.HashSet;
+
 /**
  * [Graph.java]
  * A program that represents a graph of communities and connections.
@@ -43,22 +45,30 @@ public class City {
         }
         connections.get(end).add(start);
     }
+
+    // TODO account for communities with no connection
+    // TODO write code for when there is no leaf community
+
+    // Pick starting points randomly and start the one community algorithm?
+
     public void fireStationSolve (){
         connections.forEach((key, value) -> System.out.println(key + ":" + value));
         while (!communitiesFulfilled()){
             //System.out.println("Not all communities are fulfilled");
             if (leafCommunitiesExist()){
                 //System.out.println("Leaf communities exists");
-                for (Community i: getCommunitiesWithNeighbours(1)){
+                ArrayList <Community> leafCommunities = getCommunitiesWithNeighbours(1);
 
-                    for (Community o: getNeighbours(i)){
-                        addFireStation(o);
-                    }
-
-                    //System.out.println("set fire station");
+                // Use HashSet because some leaf communities might share the same neighbours
+                HashSet<Community> leafNeighbours = new HashSet<Community>();
+                for (Community i: leafCommunities){
+                    leafNeighbours.add(getNeighbour(i));
                 }
+
+                addFireStation(new ArrayList<>(leafNeighbours));
             }
             else{
+
 
             }
         }
@@ -114,6 +124,9 @@ public class City {
         }
     }
 
+    public Community getNeighbour (Community community){
+        return connections.get(community).get(0);
+    }
 
     public ArrayList<Community> getNeighbours(Community community){
         ArrayList<Community> neighbours = new ArrayList<Community>();
@@ -127,12 +140,22 @@ public class City {
         return neighbours;
     }
 
-    public void addFireStation(Community community){
-        community.setFireStation(true);
-        fulfilledCommunities++;
-        for (Community i: getNeighbours(community)){
-            i.setConnectedToFireStation(true);
+    public void addFireStation(ArrayList <Community> communities){
+        for (Community i: communities){
+            i.setFireStation(true);
             fulfilledCommunities++;
         }
+
+        for (Community i: communities){
+            for (Community o: getNeighbours(i)){
+                o.setConnectedToFireStation(true);
+                fulfilledCommunities++;
+            }
+        }
+
+
     }
 }
+
+
+
