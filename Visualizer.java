@@ -61,6 +61,26 @@ public class Visualizer extends JFrame{
          */
         public void paintComponent(Graphics g){
             super.paintComponent(g);
+
+            //Draw communities
+            ArrayList<Community>nodes = city.getCommunities();
+            for(Community i: nodes){
+                Coordinate centre = communityLocations.get(i);
+                //Draw border
+                g.setColor(Color.BLACK);
+                g.fillOval(centre.getX()-Const.RADIUS-Const.BORDER, centre.getY()-Const.RADIUS-Const.BORDER, 2*(Const.RADIUS+Const.BORDER), 2*(Const.RADIUS+Const.BORDER));
+                if(i.getFireStation()){ //If a fire station, draw orange
+                    g.setColor(Color.ORANGE);
+                }else if(i.getSelected()){ //If selected, draw blue
+                    g.setColor(Color.BLUE);
+                }else if(i.getConnectedToFireStation()){ //If connected to fire station, draw gray
+                    g.setColor(Color.GRAY);
+                }
+                else{ //Otherwise, draw white
+                    g.setColor(Color.WHITE);
+                }
+                g.fillOval(centre.getX()-Const.RADIUS, centre.getY()-Const.RADIUS, 2*Const.RADIUS, 2*Const.RADIUS);
+            }
             //Draw edges
             HashMap<Community, ArrayList<Community>>adjacencyList = city.getConnections();
             g.setColor(Color.BLACK);
@@ -73,25 +93,7 @@ public class Visualizer extends JFrame{
                     g.drawLine(centreI.getX(), centreI.getY(), centreJ.getX(), centreJ.getY());
                 }
             }
-            //Draw communities
-            ArrayList<Community>nodes = city.getCommunities();
-            for(Community i:nodes){
-                Coordinate centre = communityLocations.get(i);
-                //Draw border
-                g.setColor(Color.BLACK);
-                g.fillOval(centre.getX()-Const.RADIUS/2-Const.BORDER, centre.getY()-Const.RADIUS/2-Const.BORDER, 2*(Const.RADIUS+Const.BORDER), 2*(Const.RADIUS+Const.BORDER));
-                if(i.getFireStation()){ //If a fire station, draw orange
-                    g.setColor(Color.ORANGE);
-                }else if(i.getSelected()){ //If selected, draw blue 
-                    g.setColor(Color.BLUE);
-                }else if(i.getConnectedToFireStation()){ //If connected to fire station, draw gray
-                    g.setColor(Color.GRAY);
-                }
-                else{ //Otherwise, draw white
-                    g.setColor(Color.WHITE);
-                }
-                g.fillOval(centre.getX()-Const.RADIUS/2, centre.getY()-Const.RADIUS/2, 2*Const.RADIUS, 2*Const.RADIUS);
-            }
+
             //Draw instructions text
             g.setColor(Color.BLACK);
             g.setFont(new Font("Arial", Font.PLAIN, 20));
