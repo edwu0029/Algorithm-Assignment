@@ -12,7 +12,7 @@ public class Community{
     private final int cityID;
     private boolean selected;
     private boolean fireStation;
-    private boolean connectedToFireStation;
+    private boolean covered; //covered by a firestation or not
 
     Community(){
         this.cityID = nextCommunityID;
@@ -36,13 +36,10 @@ public class Community{
     public void setFireStation(boolean newValue){
         fireStation = newValue;
     }
-    public boolean getConnectedToFireStation() {
-        return connectedToFireStation;
+    public boolean getCovered(){
+        return covered;
     }
-    public void setConnectedToFireStation(boolean newValue){
-        connectedToFireStation = newValue;
-    }
-    public boolean isFulfilled() {
-        return fireStation || connectedToFireStation;
+    public void setCovered(boolean newValue){
+        covered = newValue;
     }
 }

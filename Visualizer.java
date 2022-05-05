@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.KeyListener;
@@ -74,19 +75,18 @@ public class Visualizer extends JFrame{
                     g.setColor(Color.ORANGE);
                 }else if(i.getSelected()){ //If selected, draw blue
                     g.setColor(Color.BLUE);
-                }else if(i.getConnectedToFireStation()){ //If connected to fire station, draw gray
+                }else if(i.getCovered()){ //If connected to fire station, draw gray
                     g.setColor(Color.GRAY);
-                }
-                else{ //Otherwise, draw white
+                }else{ //Otherwise, draw white
                     g.setColor(Color.WHITE);
                 }
                 g.fillOval(centre.getX()-Const.RADIUS, centre.getY()-Const.RADIUS, 2*Const.RADIUS, 2*Const.RADIUS);
             }
             //Draw edges
-            HashMap<Community, ArrayList<Community>>adjacencyList = city.getConnections();
+            HashMap<Community, HashSet<Community>>adjacencyList = city.getConnections();
             g.setColor(Color.BLACK);
             for(Community i:adjacencyList.keySet()){
-                ArrayList<Community>nextNodes = adjacencyList.get(i);
+                HashSet<Community>nextNodes = adjacencyList.get(i);
                 for(Community j:nextNodes){
                     Coordinate centreI = connections.get(i); //Graphical centre of community i
                     Coordinate centreJ = connections.get(j); //Graphical centre of community j
@@ -155,14 +155,8 @@ public class Visualizer extends JFrame{
         public void keyPressed(KeyEvent e){
             if(e.getKeyCode()==KeyEvent.VK_ENTER){ //If enter is typed, lock input
                 lockedInput = true;
-                city.fireStationSolve();
-                //Calls city to solve where to put the fire stations
+                city.fireStationSolve(); //Place fire stations optimally
             }
-//            else if (e.getKeyCode()==KeyEvent.VK_BACK_SPACE){ //If backspace is typed, delete selected community
-//                communities.remove(selected);
-//                connections.remove(selected);
-//                selected = null;
-//            }
         }
         public void keyTyped(KeyEvent e){}
         public void keyReleased(KeyEvent e){}

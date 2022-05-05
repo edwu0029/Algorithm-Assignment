@@ -11,20 +11,18 @@ import java.util.HashSet;
 public class City {
     /*----- Instance variables -----*/
     private int totalCommunities;
-    private int fulfilledCommunities;
     private ArrayList<Community>communities;
-    private HashMap<Community, ArrayList<Community>> connections;
+    private HashMap<Community, HashSet<Community>> connections;
 
     City(){
         this.totalCommunities = 0;
-        this.fulfilledCommunities = 0;
         this.communities = new ArrayList<Community>();
-        this.connections = new HashMap<Community, ArrayList<Community>>();
+        this.connections = new HashMap<Community, HashSet<Community>>();
     }
     public ArrayList<Community>getCommunities(){
         return communities;
     }
-    public HashMap<Community, ArrayList<Community>> getConnections(){
+    public HashMap<Community, HashSet<Community>> getConnections(){
         return connections;
     }
     public void addCommunity(Community newCommunity){
@@ -32,131 +30,111 @@ public class City {
         totalCommunities = totalCommunities+1;
     }
     public void addConnection(Community start, Community end){
-        //NEED to add checker for if start and end Citys are in the graph
         //Add bidirectional connection from start to end
-        //start to end
+        //Add from start to end
         if(!connections.containsKey(start)){
-            connections.put(start, new ArrayList<Community>());
+            connections.put(start, new HashSet<Community>());
         }
         connections.get(start).add(end);
-        //end to start
+        //Add from end to start
         if(!connections.containsKey(end)){
-            connections.put(end, new ArrayList<Community>());
+            connections.put(end, new HashSet<Community>());
         }
         connections.get(end).add(start);
     }
-
-    // TODO account for communities with no connection
-    // TODO write code for when there is no leaf community
-
-    // Pick starting points randomly and start the one community algorithm?
-
-    public void fireStationSolve (){
-        //connections.forEach((key, value) -> System.out.println(key + ":" + value));
-        while (!communitiesFulfilled()){
-
-            fulfillIsolated();
-
-            if (leafCommunitiesExists()){
-                ArrayList <Community> leafCommunities = getCommunitiesWithNeighbours(1);
-                HashSet<Community> leafNeighbours = new HashSet<Community>(); // Use HashSet because some leaf communities might share the same neighbours
-                for (Community i: leafCommunities){
-                    leafNeighbours.add(getNeighbour(i));
-                }
-                fulfill(new ArrayList<>(leafNeighbours));
+    public void fireStationSolve(){
+        while(hasUncoveredCommunities()){
+            //If there are isolated communities, then make each of them a fire station
+            //Isolated communities: Communities with no uncovered neighbour, but are themselves uncovered
+            ArrayList<Community>isolatedCommunities = getCommunitiesWithNeighbour(0);
+            for(Community i: isolatedCommunities){
+                addFireStation(i);
             }
-            else{
-
-
+            //If there are any leaf communities, make each of their onlyconnected communities a fire station
+            //Leaf communities: Communities with ONE uncovered neighbour, but are themselves uncovered
+            ArrayList<Community>leafCommunities = getCommunitiesWithNeighbour(1);
+            if(leafCommunities.size()>0){ //There are leaf communities
+                //Get leaf communities neighbours
+                HashSet<Community>leafNeighbours = new HashSet<Community>(); // Use HashSet because some leaf communities might share the same neighbours
+                for(Community i: leafCommunities){
+                    //Consider corner case: If a leaf community is attached to another leaf community
+                    if(leafNeighbours.contains(i)==false){
+                        //Ensures that for the corner case above, only one is marked as a fire station later
+                        leafNeighbours.addAll(getUncoveredNeighbours(i));
+                    }
+                }
+                //Add a fire station to each of these neighbours
+                for(Community i: leafNeighbours){
+                    addFireStation(i);
+                }
+                //Consider corner case: If a leaf node is connected to another leaf node
+            }else if(leafCommunities.size()==0){ //If there are NO leaf communities, pick the community with the maximum number of uncovered neighbours
+                //Find a non-fire station community with the maximum number of uncovered neighbours, this could be a already covered community
+                //If there is a tie, pick any
+                Community optimalPick = null;
+                int maxUncoveredNeighbours = 0;
+                for(Community i: communities){
+                    if(i.getFireStation()==false && getUncoveredNeighboursAmount(i)>maxUncoveredNeighbours){
+                        maxUncoveredNeighbours = getUncoveredNeighboursAmount(i);
+                        optimalPick = i;
+                    }
+                }
+                addFireStation(optimalPick);
             }
         }
-
     }
-
-    public Boolean communitiesFulfilled(){
-        System.out.println("Fulfilled: "+fulfilledCommunities);
-        System.out.println("Total: "+totalCommunities);
-        return fulfilledCommunities == totalCommunities;
+    public int getUncoveredNeighboursAmount(Community community){
+        int uncovered = 0;
+        if(connections.containsKey(community)){
+            for(Community i: connections.get(community)){
+                if(i.getCovered()==false){
+                    uncovered = uncovered+1;
+                }
+            }
+        }
+        return uncovered;
     }
-
-    public Boolean leafCommunitiesExists(){
-        for (Community i: connections.keySet()){
-            if (getNeighboursAmount(i) == 1){
+    public ArrayList<Community> getCommunitiesWithNeighbour(int uncoveredNeighbours){
+        ArrayList<Community>communitiesWithNeighbours = new ArrayList<Community>();
+        for(Community i: communities){
+            if(i.getCovered()==false && getUncoveredNeighboursAmount(i)==uncoveredNeighbours){ //Leaf communities have one connection
+                communitiesWithNeighbours.add(i);
+            }
+        }
+        return communitiesWithNeighbours;
+    }
+    public HashSet<Community> getUncoveredNeighbours(Community community){
+        HashSet<Community> neigbours = new HashSet<Community>();
+        if(connections.containsKey(community)){
+            for(Community i: connections.get(community)){
+                if(i.getCovered()==false){
+                    neigbours.add(i);
+                }
+            }
+        }
+        return neigbours;
+    }
+    public void addFireStation(Community community){
+        if(community==null){
+            return;
+        }
+        //Make the community a firestation
+        community.setFireStation(true);
+        community.setCovered(true);
+        //Update its neighbours as covered
+        for(Community i: connections.get(community)){
+            i.setCovered(true);
+        }
+    }
+    public boolean hasUncoveredCommunities(){
+        for(Community i: communities){
+            if(i.getCovered()==false){
                 return true;
             }
         }
         return false;
     }
-
-    public ArrayList<Community> getCommunitiesWithNeighbours(int unfulfilledNeighbours){
-        // Returns communities with specified number of unfulfilled neighbours
-        ArrayList<Community> neighboursUnfulfilled = new ArrayList<Community>();
-
-        for (Community i: this.communities){
-            if (getNeighboursAmount(i) == unfulfilledNeighbours){
-                neighboursUnfulfilled.add(i);
-            }
-        }
-
-        return neighboursUnfulfilled;
-    }
-
-    public int getNeighboursAmount(Community community){
-        // Returns the number of unfulfilled neighbours
-        if (connections.containsKey(community)){
-            int unfulfilled = 0;
-            for (Community i: connections.get(community)){
-                if (!i.isFulfilled()){
-                    unfulfilled++;
-                }
-            }
-            return unfulfilled;
-        }
-        else{
-            return 0;
-        }
-    }
-
-    public Community getNeighbour(Community community){
-        // Returns neighbour for leaf community
-        return getNeighbours(community).get(0);
-    }
-
-    public ArrayList<Community> getNeighbours(Community community){
-        // Returns unfulfilled neighbours
-        ArrayList<Community> neighbours = new ArrayList<Community>();
-        if (connections.containsKey(community)){
-            for (Community i: connections.get(community)){
-                if (!i.isFulfilled()){
-                    neighbours.add(i);
-                }
-            }
-        }
-        return neighbours;
-    }
-
-    public void fulfillIsolated(){
-        for (Community i: this.communities){
-            if (getNeighboursAmount(i) == 0){
-                i.setFireStation(true);
-                fulfilledCommunities++;
-            }
-        }
-    }
-    public void fulfill(ArrayList <Community> communities){
-        // Add fire station
-        for (Community i: communities){
-            i.setFireStation(true);
-            fulfilledCommunities++;
-        }
-        // Set neighbours as connect to fire station
-        for (Community i: communities){
-            for (Community o: getNeighbours(i)){
-                o.setConnectedToFireStation(true);
-                fulfilledCommunities++;
-            }
-        }
-    }
+    
 }
 
 
