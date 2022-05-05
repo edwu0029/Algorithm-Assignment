@@ -1,6 +1,7 @@
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
 
 /**
  * [Graph.java]
@@ -55,7 +56,7 @@ public class City {
         //connections.forEach((key, value) -> System.out.println(key + ":" + value));
         while (!communitiesFulfilled()){
 
-            fulfillIsolated();
+            //fulfillIsolated();
 
             if (leafCommunitiesExists()){
                 ArrayList <Community> leafCommunities = getCommunitiesWithNeighbours(1);
@@ -64,11 +65,13 @@ public class City {
                     leafNeighbours.add(getNeighbour(i));
                 }
                 fulfill(new ArrayList<>(leafNeighbours));
+
             }
             else{
 
 
             }
+
         }
 
     }

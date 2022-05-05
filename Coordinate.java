@@ -25,4 +25,9 @@ public class Coordinate {
         //Custom hash code for Coordinate objects
         return Objects.hash(x, y);
     }
+
+    @Override
+    public String toString() {
+        return "(" + x + ", " + y + ')';
+    }
 }

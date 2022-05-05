@@ -45,4 +45,14 @@ public class Community{
     public boolean isFulfilled() {
         return fireStation || connectedToFireStation;
     }
+
+    @Override
+    public String toString() {
+        return "Community{" +
+                "cityID:" + cityID +
+                ", selected:" + selected +
+                ", fireStation:" + fireStation +
+                ", connectedToFireStation:" + connectedToFireStation +
+                '}';
+    }
 }
