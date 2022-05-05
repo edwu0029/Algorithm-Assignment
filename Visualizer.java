@@ -159,11 +159,11 @@ public class Visualizer extends JFrame{
                 city.fireStationSolve();
                 //Calls city to solve where to put the fire stations
             }
-            else if (e.getKeyCode()==KeyEvent.VK_BACK_SPACE){ //If backspace is typed, delete selected community
-                communities.remove(selected);
-                connections.remove(selected);
-                selected = null;
-            }
+//            else if (e.getKeyCode()==KeyEvent.VK_BACK_SPACE){ //If backspace is typed, delete selected community
+//                communities.remove(selected);
+//                connections.remove(selected);
+//                selected = null;
+//            }
         }
         public void keyTyped(KeyEvent e){}
         public void keyReleased(KeyEvent e){}

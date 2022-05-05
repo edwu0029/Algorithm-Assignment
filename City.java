@@ -52,20 +52,18 @@ public class City {
     // Pick starting points randomly and start the one community algorithm?
 
     public void fireStationSolve (){
-        connections.forEach((key, value) -> System.out.println(key + ":" + value));
+        //connections.forEach((key, value) -> System.out.println(key + ":" + value));
         while (!communitiesFulfilled()){
-            //System.out.println("Not all communities are fulfilled");
-            if (leafCommunitiesExist()){
-                //System.out.println("Leaf communities exists");
-                ArrayList <Community> leafCommunities = getCommunitiesWithNeighbours(1);
 
-                // Use HashSet because some leaf communities might share the same neighbours
-                HashSet<Community> leafNeighbours = new HashSet<Community>();
+            fulfillIsolated();
+
+            if (leafCommunitiesExists()){
+                ArrayList <Community> leafCommunities = getCommunitiesWithNeighbours(1);
+                HashSet<Community> leafNeighbours = new HashSet<Community>(); // Use HashSet because some leaf communities might share the same neighbours
                 for (Community i: leafCommunities){
                     leafNeighbours.add(getNeighbour(i));
                 }
-
-                addFireStation(new ArrayList<>(leafNeighbours));
+                fulfill(new ArrayList<>(leafNeighbours));
             }
             else{
 
@@ -81,7 +79,7 @@ public class City {
         return fulfilledCommunities == totalCommunities;
     }
 
-    public Boolean leafCommunitiesExist(){
+    public Boolean leafCommunitiesExists(){
         for (Community i: connections.keySet()){
             if (getNeighboursAmount(i) == 1){
                 return true;
@@ -91,29 +89,21 @@ public class City {
     }
 
     public ArrayList<Community> getCommunitiesWithNeighbours(int unfulfilledNeighbours){
+        // Returns communities with specified number of unfulfilled neighbours
         ArrayList<Community> neighboursUnfulfilled = new ArrayList<Community>();
-        if (unfulfilledNeighbours == 0){
-            for (Community i: this.communities){
-                if (!connections.containsKey(i)){
-                    neighboursUnfulfilled.add(i);
-                }
+
+        for (Community i: this.communities){
+            if (getNeighboursAmount(i) == unfulfilledNeighbours){
+                neighboursUnfulfilled.add(i);
             }
         }
-        else{
-            for (Community i: this.communities){
-                if (getNeighboursAmount(i) == unfulfilledNeighbours){
-                    neighboursUnfulfilled.add(i);
-                }
-            }
-        }
+
         return neighboursUnfulfilled;
     }
 
     public int getNeighboursAmount(Community community){
-        if (!connections.containsKey(community)){
-            return 0;
-        }
-        else{
+        // Returns the number of unfulfilled neighbours
+        if (connections.containsKey(community)){
             int unfulfilled = 0;
             for (Community i: connections.get(community)){
                 if (!i.isFulfilled()){
@@ -122,13 +112,18 @@ public class City {
             }
             return unfulfilled;
         }
+        else{
+            return 0;
+        }
     }
 
-    public Community getNeighbour (Community community){
-        return connections.get(community).get(0);
+    public Community getNeighbour(Community community){
+        // Returns neighbour for leaf community
+        return getNeighbours(community).get(0);
     }
 
     public ArrayList<Community> getNeighbours(Community community){
+        // Returns unfulfilled neighbours
         ArrayList<Community> neighbours = new ArrayList<Community>();
         if (connections.containsKey(community)){
             for (Community i: connections.get(community)){
@@ -140,20 +135,27 @@ public class City {
         return neighbours;
     }
 
-    public void addFireStation(ArrayList <Community> communities){
+    public void fulfillIsolated(){
+        for (Community i: this.communities){
+            if (getNeighboursAmount(i) == 0){
+                i.setFireStation(true);
+                fulfilledCommunities++;
+            }
+        }
+    }
+    public void fulfill(ArrayList <Community> communities){
+        // Add fire station
         for (Community i: communities){
             i.setFireStation(true);
             fulfilledCommunities++;
         }
-
+        // Set neighbours as connect to fire station
         for (Community i: communities){
             for (Community o: getNeighbours(i)){
                 o.setConnectedToFireStation(true);
                 fulfilledCommunities++;
             }
         }
-
-
     }
 }
 
