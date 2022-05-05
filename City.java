@@ -76,7 +76,9 @@ public class City {
                         optimalPick = i;
                     }
                 }
-                addFireStation(optimalPick);
+                if(optimalPick!=null){ //If there is a optimal pick, add the fire station there
+                    addFireStation(optimalPick);
+                }
             }
         }
     }
