@@ -114,9 +114,6 @@ public class City {
         return neighbours;
     }
     public void addFireStation(Community community){
-        if(community==null){
-            return;
-        }
         //Make the community a firestation
         community.setFireStation(true);
         community.setCovered(true);
