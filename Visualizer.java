@@ -126,8 +126,7 @@ public class Visualizer extends JFrame{
                     int centreX = centre.getX();
                     int centreY = centre.getY();
                     //Check if distance between mouse and city's centre coordinate <= 2*graphical diameter of the city
-                    //The 2*diameter is for a buffer to not allow communities to be placed too close to each other
-                    if(Math.pow(centreX-e.getX(), 2)+Math.pow(centreY-e.getY(), 2)<Math.pow(4*Const.RADIUS, 2)){
+                    if(Math.pow(centreX-e.getX(), 2)+Math.pow(centreY-e.getY(), 2)<Math.pow(2*Const.RADIUS, 2)){
                         cityClicked = community;
                     }
                 }
