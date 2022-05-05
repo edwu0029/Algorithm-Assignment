@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.KeyListener;
@@ -24,15 +25,16 @@ public class Visualizer extends JFrame{
     /*----- Instance variables -----*/
     private GraphPanel panel;
     private City city;
-
-    private HashMap<Community, Coordinate> coordinates;
+    ArrayList<Community> communities;
+    private HashMap<Community, Coordinate> connections;
     private boolean lockedInput; //Lock user from inputting
     private Community selected;
 
     Visualizer(City city){
         this.panel = new GraphPanel();
         this.city = city;
-        this.coordinates = new HashMap<Community, Coordinate>();
+        this.communities = city.getCommunities();
+        this.connections = new HashMap<Community, Coordinate>();
         this.lockedInput = false;
 
         //Set up JPanel
@@ -64,9 +66,8 @@ public class Visualizer extends JFrame{
         public void paintComponent(Graphics g){
             super.paintComponent(g);
             //Draw communities
-            ArrayList<Community> communities = city.getCommunities();
             for(Community i: communities){
-                Coordinate centre = coordinates.get(i);
+                Coordinate centre = connections.get(i);
                 //Draw border
                 g.setColor(Color.BLACK);
                 g.fillOval(centre.getX()-Const.RADIUS-Const.BORDER, centre.getY()-Const.RADIUS-Const.BORDER, 2*(Const.RADIUS+Const.BORDER), 2*(Const.RADIUS+Const.BORDER));
@@ -74,22 +75,21 @@ public class Visualizer extends JFrame{
                     g.setColor(Color.ORANGE);
                 }else if(i.getSelected()){ //If selected, draw blue
                     g.setColor(Color.BLUE);
-                }else if(i.getConnectedToFireStation()){ //If connected to fire station, draw gray
+                }else if(i.getCovered()){ //If connected to fire station, draw gray
                     g.setColor(Color.GRAY);
-                }
-                else{ //Otherwise, draw white
+                }else{ //Otherwise, draw white
                     g.setColor(Color.WHITE);
                 }
                 g.fillOval(centre.getX()-Const.RADIUS, centre.getY()-Const.RADIUS, 2*Const.RADIUS, 2*Const.RADIUS);
             }
             //Draw edges
-            HashMap<Community, ArrayList<Community>>connections = city.getConnections();
+            HashMap<Community, HashSet<Community>>adjacencyList = city.getConnections();
             g.setColor(Color.BLACK);
-            for(Community i:connections.keySet()){
-                ArrayList<Community>nextNodes = connections.get(i);
+            for(Community i:adjacencyList.keySet()){
+                HashSet<Community>nextNodes = adjacencyList.get(i);
                 for(Community j:nextNodes){
-                    Coordinate centreI = coordinates.get(i); //Graphical centre of community i
-                    Coordinate centreJ = coordinates.get(j); //Graphical centre of community j
+                    Coordinate centreI = connections.get(i); //Graphical centre of community i
+                    Coordinate centreJ = connections.get(j); //Graphical centre of community j
                     //Draw edge from node i's centre to node j's centre
                     g.drawLine(centreI.getX(), centreI.getY(), centreJ.getX(), centreJ.getY());
                 }
@@ -121,20 +121,19 @@ public class Visualizer extends JFrame{
             }else{
                 //Check if mouse click is in community
                 Community cityClicked = null;
-                for(Community community: coordinates.keySet()){
-                    Coordinate centre = coordinates.get(community);
+                for(Community community: connections.keySet()){
+                    Coordinate centre = connections.get(community);
                     int centreX = centre.getX();
                     int centreY = centre.getY();
                     //Check if distance between mouse and city's centre coordinate <= 2*graphical diameter of the city
-                    //The 2*diameter is for a buffer to not allow communities to be placed too close to each other
-                    if(Math.pow(centreX-e.getX(), 2)+Math.pow(centreY-e.getY(), 2)<Math.pow(4*Const.RADIUS, 2)){
+                    if(Math.pow(centreX-e.getX(), 2)+Math.pow(centreY-e.getY(), 2)<Math.pow(2*Const.RADIUS, 2)){
                         cityClicked = community;
                     }
                 }
                 if(cityClicked==null){ //If no community is clicked, add a community
                     Community newCommunity = new Community();
                     city.addCommunity(newCommunity);
-                    coordinates.put(newCommunity, new Coordinate(e.getX(), e.getY()));
+                    connections.put(newCommunity, new Coordinate(e.getX(), e.getY()));
                 }else{
                     if(selected==null){ //If there is no selected, make this clickedCity selected
                         selected = cityClicked;
@@ -156,10 +155,8 @@ public class Visualizer extends JFrame{
         public void keyPressed(KeyEvent e){
             if(e.getKeyCode()==KeyEvent.VK_ENTER){ //If enter is typed, lock input
                 lockedInput = true;
-                city.fireStationSolve();
-                //Calls city to solve where to put the fire stations
+                city.fireStationSolve(); //Place fire stations optimally
             }
-
         }
         public void keyTyped(KeyEvent e){}
         public void keyReleased(KeyEvent e){}
