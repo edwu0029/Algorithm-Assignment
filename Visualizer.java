@@ -23,18 +23,19 @@ public class Visualizer extends JFrame{
     final int MAX_Y = (int)getToolkit().getScreenSize().getHeight();
 
     /*----- Instance variables -----*/
-    private GraphPanel panel;
+    public CityPanel panel;
     private City city;
     ArrayList<Community> communities;
-    private HashMap<Community, Coordinate> connections;
+    private HashMap<Community, Coordinate> communityLocations;
     private boolean lockedInput; //Lock user from inputting
     private Community selected;
 
     Visualizer(City city){
-        this.panel = new GraphPanel();
+        this.panel = new CityPanel();
+        this.add(panel);
         this.city = city;
         this.communities = city.getCommunities();
-        this.connections = new HashMap<Community, Coordinate>();
+        this.communityLocations = new HashMap<Community, Coordinate>();
         this.lockedInput = false;
 
         //Set up JPanel
@@ -44,11 +45,14 @@ public class Visualizer extends JFrame{
         this.setSize(MAX_X/2, MAX_Y/2);
         this.setVisible(true);
     }
-    /*----- GraphPanel Inner Class -----*/
-    private class GraphPanel extends JPanel {
+    public boolean getLockedInput(){
+        return lockedInput;
+    }
+    /*----- CityPanel Inner Class -----*/
+    private class CityPanel extends JPanel {
         private InputMouseListener mouseListener;
         private InputKeyListener keyListener;
-        GraphPanel(){
+        CityPanel(){
             this.mouseListener = new InputMouseListener();
             this.keyListener = new InputKeyListener();
             this.addMouseListener(mouseListener);
@@ -67,7 +71,7 @@ public class Visualizer extends JFrame{
             super.paintComponent(g);
             //Draw communities
             for(Community i: communities){
-                Coordinate centre = connections.get(i);
+                Coordinate centre = communityLocations.get(i);
                 //Draw border
                 g.setColor(Color.BLACK);
                 g.fillOval(centre.getX()-Const.RADIUS-Const.BORDER, centre.getY()-Const.RADIUS-Const.BORDER, 2*(Const.RADIUS+Const.BORDER), 2*(Const.RADIUS+Const.BORDER));
@@ -88,8 +92,8 @@ public class Visualizer extends JFrame{
             for(Community i:adjacencyList.keySet()){
                 HashSet<Community>nextNodes = adjacencyList.get(i);
                 for(Community j:nextNodes){
-                    Coordinate centreI = connections.get(i); //Graphical centre of community i
-                    Coordinate centreJ = connections.get(j); //Graphical centre of community j
+                    Coordinate centreI = communityLocations.get(i); //Graphical centre of community i
+                    Coordinate centreJ = communityLocations.get(j); //Graphical centre of community j
                     //Draw edge from node i's centre to node j's centre
                     g.drawLine(centreI.getX(), centreI.getY(), centreJ.getX(), centreJ.getY());
                 }
@@ -121,8 +125,8 @@ public class Visualizer extends JFrame{
             }else{
                 //Check if mouse click is in community
                 Community cityClicked = null;
-                for(Community community: connections.keySet()){
-                    Coordinate centre = connections.get(community);
+                for(Community community: communityLocations.keySet()){
+                    Coordinate centre = communityLocations.get(community);
                     int centreX = centre.getX();
                     int centreY = centre.getY();
                     //Check if distance between mouse and city's centre coordinate <= 2*graphical diameter of the city
@@ -133,7 +137,7 @@ public class Visualizer extends JFrame{
                 if(cityClicked==null){ //If no community is clicked, add a community
                     Community newCommunity = new Community();
                     city.addCommunity(newCommunity);
-                    connections.put(newCommunity, new Coordinate(e.getX(), e.getY()));
+                    communityLocations.put(newCommunity, new Coordinate(e.getX(), e.getY()));
                 }else{
                     if(selected==null){ //If there is no selected, make this clickedCity selected
                         selected = cityClicked;
@@ -155,7 +159,6 @@ public class Visualizer extends JFrame{
         public void keyPressed(KeyEvent e){
             if(e.getKeyCode()==KeyEvent.VK_ENTER){ //If enter is typed, lock input
                 lockedInput = true;
-                city.fireStationSolve(); //Place fire stations optimally
             }
         }
         public void keyTyped(KeyEvent e){}

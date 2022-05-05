@@ -1,7 +1,6 @@
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.HashSet;
-
 /**
  * [Graph.java]
  * A program that represents a graph of communities and connections.
@@ -25,6 +24,10 @@ public class City {
     }
     public void addCommunity(Community newCommunity){
         communities.add(newCommunity);
+        //Add this new community to adjacency list
+        if(connections.containsKey(newCommunity)==false){
+            connections.put(newCommunity, new HashSet<Community>());
+        }
     }
     public void addConnection(Community start, Community end){
         //Add bidirectional connection from start to end
@@ -40,45 +43,42 @@ public class City {
         connections.get(end).add(start);
     }
     public void fireStationSolve(){
-        while(hasUncoveredCommunities()){
-            //If there are isolated communities, then make each of them a fire station
-            //Isolated communities: Communities with no uncovered neighbour, but are themselves uncovered
-            ArrayList<Community>isolatedCommunities = getCommunitiesWithNeighbour(0);
-            for(Community i: isolatedCommunities){
+        //If there are isolated communities, then make each of them a fire station
+        //Isolated communities: Communities with no uncovered neighbour, but are themselves uncovered
+        ArrayList<Community>isolatedCommunities = getCommunitiesWithNeighbour(0);
+        for(Community i: isolatedCommunities){
+            addFireStation(i);
+        }
+        //If there are any leaf communities, make each of their only connected communities a fire station
+        //Leaf communities: Communities with ONE uncovered neighbour, but are themselves uncovered
+        ArrayList<Community>leafCommunities = getCommunitiesWithNeighbour(1);
+        if(leafCommunities.size()>0){ //There are leaf communities
+            //Get leaf communities neighbours
+            HashSet<Community>leafNeighbours = new HashSet<Community>(); // Use HashSet because some leaf communities might share the same neighbours
+            for(Community i: leafCommunities){
+                //Consider corner case: If a leaf community is attached to another leaf community
+                if(!leafNeighbours.contains(i)){
+                    //Ensures that for the corner case above, only one is marked as a fire station later
+                    leafNeighbours.addAll(getUncoveredNeighbours(i));
+                }
+            }
+            //Add a fire station to each of these neighbours
+            for(Community i: leafNeighbours){
                 addFireStation(i);
             }
-            //If there are any leaf communities, make each of their only connected communities a fire station
-            //Leaf communities: Communities with ONE uncovered neighbour, but are themselves uncovered
-            ArrayList<Community>leafCommunities = getCommunitiesWithNeighbour(1);
-            if(leafCommunities.size()>0){ //There are leaf communities
-                //Get leaf communities neighbours
-                HashSet<Community>leafNeighbours = new HashSet<Community>(); // Use HashSet because some leaf communities might share the same neighbours
-                for(Community i: leafCommunities){
-                    //Consider corner case: If a leaf community is attached to another leaf community
-                    if(!leafNeighbours.contains(i)){
-                        //Ensures that for the corner case above, only one is marked as a fire station later
-                        leafNeighbours.addAll(getUncoveredNeighbours(i));
-                    }
+        }else{ //If there are NO leaf communities, pick the community with the maximum number of uncovered neighbours
+            //Find a non-fire station community with the maximum number of uncovered neighbours, this could be a already covered community
+            //If there is a tie, pick any
+            Community optimalPick = null;
+            int maxUncoveredNeighbours = 0;
+            for(Community i: communities){
+                if(!i.getFireStation() && getUncoveredNeighboursAmount(i)>maxUncoveredNeighbours){
+                    maxUncoveredNeighbours = getUncoveredNeighboursAmount(i);
+                    optimalPick = i;
                 }
-                //Add a fire station to each of these neighbours
-                for(Community i: leafNeighbours){
-                    addFireStation(i);
-                }
-                //Consider corner case: If a leaf node is connected to another leaf node
-            } else { //If there are NO leaf communities, pick the community with the maximum number of uncovered neighbours
-                //Find a non-fire station community with the maximum number of uncovered neighbours, this could be a already covered community
-                //If there is a tie, pick any
-                Community optimalPick = null;
-                int maxUncoveredNeighbours = 0;
-                for(Community i: communities){
-                    if(!i.getFireStation() && getUncoveredNeighboursAmount(i)>maxUncoveredNeighbours){
-                        maxUncoveredNeighbours = getUncoveredNeighboursAmount(i);
-                        optimalPick = i;
-                    }
-                }
-                if(optimalPick!=null){ //If there is a optimal pick, add the fire station there
-                    addFireStation(optimalPick);
-                }
+            }
+            if(optimalPick!=null){ //If there is a optimal pick, add the fire station there
+                addFireStation(optimalPick);
             }
         }
     }
@@ -130,8 +130,4 @@ public class City {
         }
         return false;
     }
-    
 }
-
-
-
