@@ -34,7 +34,7 @@ public class Visualizer extends JFrame {
     /**
      * Visualizer
      * A constructor that constructs a visualizer for a specified city.s
-     *
+     * 
      * @param city The city which this visualizer will display
      */
     Visualizer(City city) {
@@ -172,7 +172,7 @@ public class Visualizer extends JFrame {
             } else {
                 g.drawString("Left click to add a community.", 10, 20);
                 g.drawString("To add a connection, click two existing communities.", 10, 40);
-                g.drawString("When finished, press SHIFT to show steps. ", 10, 60);
+                g.drawString("When finished, press N to show steps. ", 10, 60);
             }
             this.repaint();
         }
@@ -251,7 +251,7 @@ public class Visualizer extends JFrame {
                 lockedInput = true;
                 city.fireStationSolve();
             }
-            if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+            if (e.getKeyCode() == KeyEvent.VK_N) {
                 lockedInput = true;
                 city.fireStationPlacer();
             }
