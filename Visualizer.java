@@ -165,7 +165,6 @@ public class Visualizer extends JFrame{
                 g.drawString("Left click to add a community", 10, 20);
                 g.drawString("To add a connection, click two existing communities", 10, 40);
                 g.drawString("To finish the input, press ENTER on your keyboard", 10, 60);
-                g.drawString("To switch demo/template input case, copy and paste the content of the respective text file into activedemo.txt", 10, 80);
             }
             this.repaint();
         }
