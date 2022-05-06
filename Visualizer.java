@@ -15,17 +15,17 @@ import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 /**
  * [Visualizer.java]
- * A program that visualizes the graph and graphical input.
+ * A program that visualizes the city, communities and graphical input.
  * @author Edward Wu and Yi Chun Jin
- * @version 1.0, April 25, 2022
+ * @version 1.0, May 6, 2022
  */
 public class Visualizer extends JFrame{
-    /*----- Constants -----*/
+    /*----- Screen Size Constants -----*/
     final int MAX_X = (int)getToolkit().getScreenSize().getWidth();
     final int MAX_Y = (int)getToolkit().getScreenSize().getHeight();
 
     /*----- Instance variables -----*/
-    public CityPanel panel;
+    private CityPanel panel;
     private City city;
     ArrayList<Community> communities;
     private HashMap<Community, Coordinate> communityLocations;
@@ -33,6 +33,11 @@ public class Visualizer extends JFrame{
     private Community selected;
     private int nextCommunityID = 1;
 
+    /**
+     * Visualizer
+     * A constructor that constructs a visualizer for a specified city.s
+     * @param city The city which this visualizer will display
+     */
     Visualizer(City city){
         this.panel = new CityPanel();
         this.add(panel);
@@ -50,14 +55,24 @@ public class Visualizer extends JFrame{
         this.setSize(MAX_X/2, MAX_Y/2);
         this.setVisible(true);
     }
+    /**
+     * getLockedInput
+     * A method that returns whether the visualizer has locked input or not.
+     * @return true if input is locked, false if input is still going on.
+     */
     public boolean getLockedInput(){
         return lockedInput;
     }
+    /**
+     * loadTemplate
+     * A method that loads a template/demo into the visualizer.
+     */
     public void loadTemplate(){
         try{
             Scanner fileInput = new Scanner(new File("activedemo.txt"));
             int numberOfCommunities = fileInput.nextInt();
             int numberOfConnections = fileInput.nextInt();
+            //Get community locations from template
             for(int i = 0;i<numberOfCommunities;i++){
                 int x = fileInput.nextInt();
                 int y = fileInput.nextInt();
@@ -66,6 +81,7 @@ public class Visualizer extends JFrame{
                 city.addCommunity(newCommunity);
                 nextCommunityID = nextCommunityID+1;
             }
+            //Get connections from template
             for(int i = 0;i<numberOfConnections;i++){
                 int communityID1 = fileInput.nextInt();
                 int communityID2 = fileInput.nextInt();
@@ -82,27 +98,33 @@ public class Visualizer extends JFrame{
     private class CityPanel extends JPanel {
         private InputMouseListener mouseListener;
         private InputKeyListener keyListener;
+
+        /**
+         * CityPanel
+         * A constructor that constructs a CityPanel.
+         */
         CityPanel(){
             this.mouseListener = new InputMouseListener();
             this.keyListener = new InputKeyListener();
             this.addMouseListener(mouseListener);
             this.addKeyListener(keyListener);
 
+            //Set this CityPanel as visible in the Visualizer
             this.setFocusable(true);
             this.requestFocusInWindow(); 
         }
-        @Override
         /**
          * paintComponent
-         * A overriden method that draws the graph onto this GraphPanel.
+         * A overriden method that draws the city onto this CityPanel.
          * @param g The graphics object that will be drawn with.
          */
+        @Override
         public void paintComponent(Graphics g){
             super.paintComponent(g);
             //Draw communities
             for(Community i: communities){
                 Coordinate centre = communityLocations.get(i);
-                //Draw border
+                //Draw border for communities
                 g.setColor(Color.BLACK);
                 g.fillOval(centre.getX()-Const.RADIUS-Const.BORDER, centre.getY()-Const.RADIUS-Const.BORDER, 2*(Const.RADIUS+Const.BORDER), 2*(Const.RADIUS+Const.BORDER));
                 if(i.getFireStation()){ //If a fire station, draw orange
@@ -116,7 +138,7 @@ public class Visualizer extends JFrame{
                 }
                 g.fillOval(centre.getX()-Const.RADIUS, centre.getY()-Const.RADIUS, 2*Const.RADIUS, 2*Const.RADIUS);
             }
-            //Draw edges
+            //Draw connections
             HashMap<Community, HashSet<Community>>adjacencyList = city.getConnections();
             g.setColor(Color.BLACK);
             for(Community i:adjacencyList.keySet()){
@@ -145,11 +167,20 @@ public class Visualizer extends JFrame{
     }
     /*----- MouseListener Inner Class -----*/
     public class InputMouseListener implements MouseListener{
-
+        /**
+         * InputMouseListener
+         * A constructor that constructs a graphical input mouse listener.
+         */
         InputMouseListener(){
             selected = null;
         }
         public void mouseClicked(MouseEvent e){}
+        /**
+         * mousePressed
+         * A method that adds a community at the location of mouse press, or adds a connection depending on if mouse
+         * press was in a community.
+         * @param e The MouseEvent triggered by the mouse press.
+         */
         public void mousePressed(MouseEvent e){
             if(lockedInput){ //If input is locked, ignore mouse event
                 return;
@@ -188,6 +219,11 @@ public class Visualizer extends JFrame{
     }
     /*----- KeyListener Inner Class -----*/
     public class InputKeyListener implements KeyListener{
+        /**
+         * keyPressed
+         * A method that the visualizer input if ENTER is pressed.
+         * @param e The KeyEvent triggered by a key press.
+         */
         public void keyPressed(KeyEvent e){
             if(e.getKeyCode()==KeyEvent.VK_ENTER){ //If enter is typed, lock input
                 lockedInput = true;

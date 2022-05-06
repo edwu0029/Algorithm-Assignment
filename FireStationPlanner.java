@@ -1,6 +1,12 @@
 import java.util.concurrent.TimeUnit;
 import java.lang.InterruptedException;
-public class Test {
+/**
+ * [FireStationPlanner.java]
+ * A program that launches the fire station planner.
+ * @author Edward Wu and Yi Chun Jin
+ * @version 1.0, May 6, 2022
+ */
+public class FireStationPlanner{
     public static void main(String args[]){
         City city = new City();
         Visualizer v = new Visualizer(city);
@@ -15,7 +21,7 @@ public class Test {
         }
         //Start solver
         while(city.hasUncoveredCommunities()){ //Keep doing one step of the solver until it is completed
-            city.fireStationSolve(); //Perform one step of the solver
+            city.fireStationPlacer(); //Perform one step of the solver
             //Delay for visualization for the completed step
             try{
                 TimeUnit.MILLISECONDS.sleep(1000);
