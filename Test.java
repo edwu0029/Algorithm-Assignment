@@ -10,6 +10,7 @@ public class Test {
                 TimeUnit.MILLISECONDS.sleep(100);
             }catch(InterruptedException e){
                 System.out.println("ERROR: Problem when delaying.");
+                
             }
         }
         //Start solver

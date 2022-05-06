@@ -7,6 +7,8 @@ import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Scanner;
+import java.io.File;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.KeyListener;
@@ -29,6 +31,7 @@ public class Visualizer extends JFrame{
     private HashMap<Community, Coordinate> communityLocations;
     private boolean lockedInput; //Lock user from inputting
     private Community selected;
+    private int nextCommunityID = 1;
 
     Visualizer(City city){
         this.panel = new CityPanel();
@@ -37,6 +40,8 @@ public class Visualizer extends JFrame{
         this.communities = city.getCommunities();
         this.communityLocations = new HashMap<Community, Coordinate>();
         this.lockedInput = false;
+
+        this.loadTemplate();
 
         //Set up JPanel
         this.panel.setBackground(Color.LIGHT_GRAY);
@@ -47,6 +52,31 @@ public class Visualizer extends JFrame{
     }
     public boolean getLockedInput(){
         return lockedInput;
+    }
+    public void loadTemplate(){
+        try{
+            Scanner fileInput = new Scanner(new File("activedemo.txt"));
+            int numberOfCommunities = fileInput.nextInt();
+            int numberOfConnections = fileInput.nextInt();
+            for(int i = 0;i<numberOfCommunities;i++){
+                int x = fileInput.nextInt();
+                int y = fileInput.nextInt();
+                Community newCommunity = new Community(nextCommunityID);
+                communityLocations.put(newCommunity, new Coordinate(x, y));
+                city.addCommunity(newCommunity);
+                nextCommunityID = nextCommunityID+1;
+            }
+            for(int i = 0;i<numberOfConnections;i++){
+                int communityID1 = fileInput.nextInt();
+                int communityID2 = fileInput.nextInt();
+                Community c1 = city.findCommunity(communityID1);
+                Community c2 = city.findCommunity(communityID2);
+                city.addConnection(c1, c2);
+            }
+            fileInput.close();
+        }catch(Exception e){
+            System.out.println("Error loading in template");
+        }
     }
     /*----- CityPanel Inner Class -----*/
     private class CityPanel extends JPanel {
@@ -108,6 +138,7 @@ public class Visualizer extends JFrame{
                 g.drawString("Left click to add a community", 10, 20);
                 g.drawString("To add a connection, click two existing communities", 10, 40);
                 g.drawString("To finish the input, press ENTER on your keyboard", 10, 60);
+                g.drawString("To switch demo/template input case, copy and paste the content of the respective text file into activedemo.txt", 10, 80);
             }
             this.repaint();
         }
@@ -135,7 +166,8 @@ public class Visualizer extends JFrame{
                     }
                 }
                 if(cityClicked==null){ //If no community is clicked, add a community
-                    Community newCommunity = new Community();
+                    Community newCommunity = new Community(nextCommunityID);
+                    nextCommunityID = nextCommunityID+1;
                     city.addCommunity(newCommunity);
                     communityLocations.put(newCommunity, new Coordinate(e.getX(), e.getY()));
                 }else{

@@ -22,6 +22,14 @@ public class City {
     public HashMap<Community, HashSet<Community>> getConnections(){
         return connections;
     }
+    public Community findCommunity(int communityID){
+        for(Community i: communities){
+            if(i.getID()==communityID){
+                return i;
+            }
+        }
+        return null;
+    }
     public void addCommunity(Community newCommunity){
         communities.add(newCommunity);
         //Add this new community to adjacency list
