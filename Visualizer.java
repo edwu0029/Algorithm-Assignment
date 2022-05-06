@@ -165,7 +165,7 @@ public class Visualizer extends JFrame {
             g.setFont(new Font("Arial", Font.PLAIN, 20));
             if (lockedInput) {
                 if (city.hasUncoveredCommunities()) {
-                    g.drawString("press SHIFT to show next step, press ENTER to skip to final result. ", 10, 20);
+                    g.drawString("press N to show next step, press ENTER to skip to final result. ", 10, 20);
                 } else {
                     g.drawString("All communities covered!", 10, 20);
                 }
