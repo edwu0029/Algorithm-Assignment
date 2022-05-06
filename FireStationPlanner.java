@@ -10,25 +10,5 @@ public class FireStationPlanner{
     public static void main(String args[]){
         City city = new City();
         Visualizer v = new Visualizer(city);
-        // TODO a timer is used here to wait for the input to finish, is there a better way to do this?
-        //Wait until graphical input finishes
-        while(v.getLockedInput()==false){
-            try{
-                TimeUnit.MILLISECONDS.sleep(100);
-            }catch(InterruptedException e){
-                System.out.println("ERROR: Problem when delaying.");
-                
-            }
-        }
-        //Start solver
-        while(city.hasUncoveredCommunities()){ //Keep doing one step of the solver until it is completed
-            city.fireStationPlacer(); //Perform one step of the solver
-            //Delay for visualization for the completed step
-            try{
-                TimeUnit.MILLISECONDS.sleep(1000);
-            }catch(InterruptedException e){
-                System.out.println("ERROR: Problem when delaying.");
-            }
-        }
     }
 }

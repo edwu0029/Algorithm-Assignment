@@ -81,6 +81,11 @@ public class City{
         }
         return null;
     }
+    public void fireStationSolve(){
+        while(hasUncoveredCommunities()){
+            fireStationPlacer();
+        }
+    }
     /**
      * fireStationSolve
      * A method that performs one "step" of the fire station placer algorithm.

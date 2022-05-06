@@ -160,11 +160,16 @@ public class Visualizer extends JFrame{
             g.setColor(Color.BLACK);
             g.setFont(new Font("Arial", Font.PLAIN, 20));
             if(lockedInput){
-                g.drawString("Input completed!", 10, 20);
+                if (city.hasUncoveredCommunities()){
+                    g.drawString("press SHIFT to show next step, press ENTER to skip to final result. ", 10, 20);
+                }
+                else{
+                    g.drawString("All communities covered!", 10, 20);
+                }
             }else{
-                g.drawString("Left click to add a community", 10, 20);
-                g.drawString("To add a connection, click two existing communities", 10, 40);
-                g.drawString("To finish the input, press ENTER on your keyboard", 10, 60);
+                g.drawString("Left click to add a community.", 10, 20);
+                g.drawString("To add a connection, click two existing communities.", 10, 40);
+                g.drawString("When finished, press SHIFT to show steps. ", 10, 60);
             }
             this.repaint();
         }
@@ -230,6 +235,11 @@ public class Visualizer extends JFrame{
         public void keyPressed(KeyEvent e){
             if (e.getKeyCode()==KeyEvent.VK_ENTER){ //If enter is typed, lock input
                 lockedInput = true;
+                city.fireStationSolve();
+            }
+            if (e.getKeyCode()==KeyEvent.VK_SHIFT){
+                lockedInput = true;
+                city.fireStationPlacer();
             }
         }
         public void keyTyped(KeyEvent e){}
