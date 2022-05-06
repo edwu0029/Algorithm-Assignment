@@ -1,5 +1,4 @@
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.awt.Font;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -28,7 +27,7 @@ public class Visualizer extends JFrame{
     private CityPanel panel;
     private City city;
     ArrayList<Community> communities;
-    private HashMap<Community, Coordinate> communityLocations;
+    private HashMap<Community, HashSet<Community>> connections;
     private boolean lockedInput; //Lock user from inputting
     private Community selected;
     private int nextCommunityID = 1;
@@ -43,7 +42,7 @@ public class Visualizer extends JFrame{
         this.add(panel);
         this.city = city;
         this.communities = city.getCommunities();
-        this.communityLocations = new HashMap<Community, Coordinate>();
+        this.connections = city.getConnections();
         this.lockedInput = false;
 
         this.loadTemplate();
@@ -68,30 +67,37 @@ public class Visualizer extends JFrame{
      * A method that loads a template/demo into the visualizer.
      */
     public void loadTemplate(){
+        String message = "Enter the name of the template file you want to load. ";
+        String defaultTemplate = "demo1.txt";
+        String fileName = JOptionPane.showInputDialog(message, defaultTemplate);
         try{
-            Scanner fileInput = new Scanner(new File("activedemo.txt"));
-            int numberOfCommunities = fileInput.nextInt();
-            int numberOfConnections = fileInput.nextInt();
-            //Get community locations from template
-            for(int i = 0;i<numberOfCommunities;i++){
-                int x = fileInput.nextInt();
-                int y = fileInput.nextInt();
-                Community newCommunity = new Community(nextCommunityID);
-                communityLocations.put(newCommunity, new Coordinate(x, y));
-                city.addCommunity(newCommunity);
-                nextCommunityID = nextCommunityID+1;
+            if (fileName != null){ // If user did not click on cancel
+                this.communities.removeAll(communities);
+                this.connections.keySet().removeAll(connections.keySet());
+                Scanner fileInput = new Scanner(new File(fileName));
+                int numberOfCommunities = fileInput.nextInt();
+                int numberOfConnections = fileInput.nextInt();
+                //Get community locations from template
+                for(int i = 0;i<numberOfCommunities;i++){
+                    int x = fileInput.nextInt();
+                    int y = fileInput.nextInt();
+                    Community newCommunity = new Community(nextCommunityID, new Coordinate(x, y));
+                    city.addCommunity(newCommunity);
+                    nextCommunityID = nextCommunityID+1;
+                }
+                //Get connections from template
+                for(int i = 0;i<numberOfConnections;i++){
+                    int communityID1 = fileInput.nextInt();
+                    int communityID2 = fileInput.nextInt();
+                    Community c1 = city.findCommunity(communityID1);
+                    Community c2 = city.findCommunity(communityID2);
+                    city.addConnection(c1, c2);
+                }
+                fileInput.close();
             }
-            //Get connections from template
-            for(int i = 0;i<numberOfConnections;i++){
-                int communityID1 = fileInput.nextInt();
-                int communityID2 = fileInput.nextInt();
-                Community c1 = city.findCommunity(communityID1);
-                Community c2 = city.findCommunity(communityID2);
-                city.addConnection(c1, c2);
-            }
-            fileInput.close();
         }catch(Exception e){
             System.out.println("Error loading in template");
+            JOptionPane.showMessageDialog(null, "An error has occurred while trying to load template file " + fileName + ". ","Alert",JOptionPane.WARNING_MESSAGE);
         }
     }
     /*----- CityPanel Inner Class -----*/
@@ -122,20 +128,20 @@ public class Visualizer extends JFrame{
         public void paintComponent(Graphics g){
             super.paintComponent(g);
             //Draw connections
-            HashMap<Community, HashSet<Community>>adjacencyList = city.getConnections();
+
             g.setColor(Color.BLACK);
-            for(Community i:adjacencyList.keySet()){
-                HashSet<Community>nextNodes = adjacencyList.get(i);
+            for(Community i: connections.keySet()){
+                HashSet<Community>nextNodes = connections.get(i);
                 for(Community j:nextNodes){
-                    Coordinate centreI = communityLocations.get(i); //Graphical centre of community i
-                    Coordinate centreJ = communityLocations.get(j); //Graphical centre of community j
+                    Coordinate centreI = i.getCentre(); //Graphical centre of community i
+                    Coordinate centreJ = j.getCentre(); //Graphical centre of community j
                     //Draw edge from node i's centre to node j's centre
                     g.drawLine(centreI.getX(), centreI.getY(), centreJ.getX(), centreJ.getY());
                 }
             }
             //Draw communities
             for(Community i: communities){
-                Coordinate centre = communityLocations.get(i);
+                Coordinate centre = i.getCentre();
                 //Draw border for communities
                 g.setColor(Color.BLACK);
                 g.fillOval(centre.getX()-Const.RADIUS-Const.BORDER, centre.getY()-Const.RADIUS-Const.BORDER, 2*(Const.RADIUS+Const.BORDER), 2*(Const.RADIUS+Const.BORDER));
@@ -186,8 +192,8 @@ public class Visualizer extends JFrame{
             }else{
                 //Check if mouse click is in community
                 Community cityClicked = null;
-                for(Community community: communityLocations.keySet()){
-                    Coordinate centre = communityLocations.get(community);
+                for(Community community: communities){
+                    Coordinate centre = community.getCentre();
                     int centreX = centre.getX();
                     int centreY = centre.getY();
                     //Check if distance between mouse and city's centre coordinate <= 2*graphical diameter of the city
@@ -196,10 +202,9 @@ public class Visualizer extends JFrame{
                     }
                 }
                 if(cityClicked==null){ //If no community is clicked, add a community
-                    Community newCommunity = new Community(nextCommunityID);
+                    Community newCommunity = new Community(nextCommunityID, new Coordinate(e.getX(), e.getY()));
                     nextCommunityID = nextCommunityID+1;
                     city.addCommunity(newCommunity);
-                    communityLocations.put(newCommunity, new Coordinate(e.getX(), e.getY()));
                 }else{
                     if(selected==null){ //If there is no selected, make this clickedCity selected
                         selected = cityClicked;
@@ -224,7 +229,7 @@ public class Visualizer extends JFrame{
          * @param e The KeyEvent triggered by a key press.
          */
         public void keyPressed(KeyEvent e){
-            if(e.getKeyCode()==KeyEvent.VK_ENTER){ //If enter is typed, lock input
+            if (e.getKeyCode()==KeyEvent.VK_ENTER){ //If enter is typed, lock input
                 lockedInput = true;
             }
         }

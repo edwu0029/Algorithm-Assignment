@@ -10,6 +10,7 @@ public class FireStationPlanner{
     public static void main(String args[]){
         City city = new City();
         Visualizer v = new Visualizer(city);
+        // TODO a timer is used here to wait for the input to finish, is there a better way to do this?
         //Wait until graphical input finishes
         while(v.getLockedInput()==false){
             try{

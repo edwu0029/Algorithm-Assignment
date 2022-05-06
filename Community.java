@@ -9,13 +9,17 @@ public class Community{
     private final int communityID;
     private boolean selected;
     private boolean fireStation;
-    private boolean covered; //covered by a firestation or not
+    private boolean covered; //covered by a fire station or not
+    private Coordinate centre;
 
-    Community(int communityID){
+    Community(int communityID, Coordinate centre){
         this.communityID = communityID;
-
+        this.centre = centre;
         this.selected = false;
         this.fireStation = false;
+    }
+    public Coordinate getCentre() {
+        return centre;
     }
     public int getID(){
         return communityID;
