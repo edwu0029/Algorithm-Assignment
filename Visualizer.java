@@ -121,6 +121,18 @@ public class Visualizer extends JFrame{
         @Override
         public void paintComponent(Graphics g){
             super.paintComponent(g);
+            //Draw connections
+            HashMap<Community, HashSet<Community>>adjacencyList = city.getConnections();
+            g.setColor(Color.BLACK);
+            for(Community i:adjacencyList.keySet()){
+                HashSet<Community>nextNodes = adjacencyList.get(i);
+                for(Community j:nextNodes){
+                    Coordinate centreI = communityLocations.get(i); //Graphical centre of community i
+                    Coordinate centreJ = communityLocations.get(j); //Graphical centre of community j
+                    //Draw edge from node i's centre to node j's centre
+                    g.drawLine(centreI.getX(), centreI.getY(), centreJ.getX(), centreJ.getY());
+                }
+            }
             //Draw communities
             for(Community i: communities){
                 Coordinate centre = communityLocations.get(i);
@@ -138,19 +150,6 @@ public class Visualizer extends JFrame{
                 }
                 g.fillOval(centre.getX()-Const.RADIUS, centre.getY()-Const.RADIUS, 2*Const.RADIUS, 2*Const.RADIUS);
             }
-            //Draw connections
-            HashMap<Community, HashSet<Community>>adjacencyList = city.getConnections();
-            g.setColor(Color.BLACK);
-            for(Community i:adjacencyList.keySet()){
-                HashSet<Community>nextNodes = adjacencyList.get(i);
-                for(Community j:nextNodes){
-                    Coordinate centreI = communityLocations.get(i); //Graphical centre of community i
-                    Coordinate centreJ = communityLocations.get(j); //Graphical centre of community j
-                    //Draw edge from node i's centre to node j's centre
-                    g.drawLine(centreI.getX(), centreI.getY(), centreJ.getX(), centreJ.getY());
-                }
-            }
-
             //Draw instructions text
             g.setColor(Color.BLACK);
             g.setFont(new Font("Arial", Font.PLAIN, 20));
